@@ -1,6 +1,7 @@
 import csv
 import datetime
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.utils.encoding import smart_str
@@ -53,7 +54,9 @@ class SubmissionListView(SingleObjectMixin, ListView):
         data_fields = self.object.get_data_fields()
         data_headings = [smart_str(label) for name, label in data_fields]
 
-        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        charset = settings.WAGTAILSTREAMFORMS_CSV_CHARSET \
+            if hasattr(settings, 'WAGTAILSTREAMFORMS_CSV_CHARSET') else 'utf-8'
+        response = HttpResponse(content_type="text/csv; charset={}".format(charset))
         response["Content-Disposition"] = "attachment;filename=export.csv"
 
         writer = csv.writer(response)
